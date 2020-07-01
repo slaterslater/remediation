@@ -1,32 +1,51 @@
-# Automate repetitious tasks in HTML remediation
-import codecs
+# Functions to assist with repetitious tasks in HTML remediation
+from bs4 import BeautifulSoup
 import re
 
 filename = "source.html"
 
+# assigns new source file
 def source():
   global filename
   filename = input("Enter source\n (filename.ext): ")
   print("source file changed to" + filename)
 
-def remediate(fixlist):
+# recieves list of changes to make
+# opens file and writes changes
+def remediate(fixlist, msg):
   try:
-    with codecs.open(filename, "r+", "utf-8") as src:
+    with open(filename, "r+") as src:
       markup = src.read()
-      for old_tags, new_tags in fixlist.items():
-        markup = re.sub(old_tags, new_tags, markup)
+      for find, replace in fixlist.items():
+        markup = re.sub(find, replace, markup)
       src.seek(0)
+      src.truncate(0)
       src.write(markup)
-      print("Depreciated tags removed or updated")
+      print(msg)
   except:
     print("something went wrong")   
 
+# updates tags
 def tags():
-  fixlist = {
-    "</?u>": "",
-    "<b>": "<strong>",
-    "</b>": "</strong>",
-    "<i>": "<em>",
-    "</i>": "</em>"
+  fix = {
+    '</?u>': '',
+    '<b>': '<strong>',
+    '</b>': '</strong>',
+    '<i>': '<em>',
+    '</i>': '</em>'
   }
-  remediate(fixlist)
+  remediate(fix, "<u> <b> <i> tags fixed")
+
+# finds attribute and value
+def attr(attribute):
+  fix = {
+    '\\s' + attribute + '="[^"]+"': ''
+  }
+  remediate(fix, attribute + " attribute removed")
+
+# finds blank lines
+def format():
+  fix = {
+    '\n{2,}': '\n'
+  }
+  remediate(fix, "removed blank lines")
