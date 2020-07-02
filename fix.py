@@ -38,14 +38,12 @@ def tags():
 
 # finds attribute and value
 def attr(attribute):
-  fix = {
-    '\\s' + attribute + '="[^"]+"': ''
-  }
-  remediate(fix, attribute + " attribute removed")
+  remediate({'\\s' + attribute + '="[^"]+"': ''}, attribute + " attribute removed")
 
 # finds blank lines
 def format():
-  fix = {
-    '\n{2,}': '\n'
-  }
-  remediate(fix, "removed blank lines")
+  remediate({'\n\\s+|\n{2,}': '\n'}, "removed blank lines")
+
+
+
+format()  
