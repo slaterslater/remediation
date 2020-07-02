@@ -38,12 +38,18 @@ def tags():
 
 # finds attribute and value
 def attr(attribute):
-  remediate({'\\s' + attribute + '="[^"]+"': ''}, attribute + " attribute removed")
+  remediate({'\\s' + attribute + '="[^"]*"': ''}, attribute + " attribute removed")
 
 # finds blank lines
 def format():
   remediate({'\n\\s+|\n{2,}': '\n'}, "removed blank lines")
 
+# removes empty headings
+def headings():
+  remediate({'<h\\d>((&nbsp;)+)?</h\\d>' : ''}, "removed empty headings")
 
+# removes redundant span elements
+def spans():
+  remediate({'<span.[^>]*>|</span>':''}, "removed all the span elements")
 
-format()  
+spans()
