@@ -52,4 +52,16 @@ def headings():
 def spans():
   remediate({'<span.[^>]*>|</span>':''}, "removed all the span elements")
 
-spans()
+# make all images decorative
+def images():
+  with open(filename, "r+") as src:
+    markup = src.read()
+    images = re.findall('<img[^>]*>', markup)
+    for img in images:
+      new = re.sub('(\\salt|\\stitle)="[^"]*"', '', img)
+      new = re.sub('<img', '<img role="presentation" alt=""', new)
+      markup = re.sub(img, new, markup)
+      src.seek(0)
+      src.truncate(0)
+      src.write(markup)
+  print("images marked as decorative")
