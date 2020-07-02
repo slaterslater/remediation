@@ -45,7 +45,7 @@ def format():
   fixes = {
     '\n\\s+|(\n){2,}': '\n',
     '\n(?=\\w)': '',
-    '<br(\\s/)?>': '<br>',
+    #'<br(\\s/)?>': '<br>', #remove this?
     '\n(\\s+)?(?=&nbsp;)': ''
   }
   remediate(fixes, "removed blank lines etc")
@@ -56,7 +56,7 @@ def headings():
 
 # removes redundant span elements
 def spans():
-  remediate({'<span[^>]*>|</span>':''}, "removed all the span elements")
+  remediate({'</?span[^>]*>':''}, "removed all the span elements")
 
 # make all images decorative
 def images():
@@ -65,12 +65,12 @@ def images():
     images = re.findall('<img[^>]*>', markup)
     for img in images:
       new = re.sub('(\\salt|\\stitle)="[^"]*"', '', img)
-      new = re.sub('<img', '<img role="presentation" alt=""', new)
-      markup = re.sub(img, new, markup)
-      src.seek(0)
-      src.truncate(0)
-      src.write(markup)
-  print("images marked as decorative")
+      new = new.replace('<img', '<img role="presentation" alt=""')
+      markup = markup.replace(img, new)
+    src.seek(0)
+    src.truncate(0)
+    src.write(markup)
+    print("images marked as decorative")
 
 #removes repeating nbsp
 def nbsp():
@@ -78,7 +78,7 @@ def nbsp():
 
 # removes elements with no text
 def empty(elem):
-  remediate({'<' + elem + '>((&nbsp;)+)?</' + elem + '>' : ''}, "removed empty <" + elem + "> elements")
+  remediate({'<' + elem + '[^>]*>((&nbsp;)+)?</' + elem + '>' : ''}, "removed empty <" + elem + "> elements")
 
 # adds a <br> into <h3>
 def h3br():
@@ -88,8 +88,16 @@ def h3br():
 def br():
     remediate({'<br(\\s/)?>' : ''}, "removed all <br> elements")
 
-def table():
-  remediate({'<table.[^>]*>' : '<table>'}, "cleared table attributes")
+# remove all attributes from table tag
+def tables():
+  remediate({'<table[^>]*>' : '<table>'}, "cleared table attributes")
+
+# remove all table elements
+def rmtables():
+  table = {
+    '</?(table|thead|tbody|tfoot|tr|th|td)[^>]*>' : ''
+  }
+  remediate(table, "removed table elements")
 
 # calls common
 def basic():
@@ -99,6 +107,5 @@ def basic():
   h3br()
   empty("p")
   format()
-
 
 # function should findall and if exists, msgs and writes otherwise exits  
