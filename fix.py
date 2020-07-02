@@ -50,7 +50,7 @@ def format():
 
 # removes empty headings
 def headings():
-  remediate({'<h\\d>((&nbsp;)+)?</h\\d>' : ''}, "removed empty headings")
+  remediate({'<h\\d[^>]*>((&nbsp;)+)?</h\\d>' : ''}, "removed empty headings")
 
 # removes redundant span elements
 def spans():
@@ -75,10 +75,12 @@ def nbsp():
 
 def empty(elem):
   remediate({'<' + elem + '>((&nbsp;)+)?</' + elem + '>' : ''}, "removed empty " + elem + " elements")
-  format()
 
 def h3br():
   remediate({'<h3>' : '<h3><br>'}, "added <br> to each <h3>")
+
+def br():
+    remediate({'<br(\\s/)?>' : ''}, "removed all <br> elements")
 
 def basic():
   tags()
@@ -86,3 +88,4 @@ def basic():
   nbsp()
   h3br()
   empty("p")
+  format()
