@@ -56,7 +56,7 @@ def headings():
 
 # removes redundant span elements
 def spans():
-  remediate({'<span.[^>]*>|</span>':''}, "removed all the span elements")
+  remediate({'<span[^>]*>|</span>':''}, "removed all the span elements")
 
 # make all images decorative
 def images():
@@ -88,6 +88,9 @@ def h3br():
 def br():
     remediate({'<br(\\s/)?>' : ''}, "removed all <br> elements")
 
+def table():
+  remediate({'<table.[^>]*>' : '<table>'}, "cleared table attributes")
+
 # calls common
 def basic():
   tags()
@@ -96,3 +99,6 @@ def basic():
   h3br()
   empty("p")
   format()
+
+
+# function should findall and if exists, msgs and writes otherwise exits  
