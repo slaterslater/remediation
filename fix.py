@@ -42,7 +42,11 @@ def attr(attribute):
 
 # finds blank lines
 def format():
-  remediate({'\n\\s+|\n{2,}': '\n'}, "removed blank lines")
+  fixes = {
+    '\n\\s+|\n{2,}': '\n',
+    '\n(?=\\w)': ''
+  }
+  remediate(fixes, "removed blank lines")
 
 # removes empty headings
 def headings():
@@ -65,3 +69,20 @@ def images():
       src.truncate(0)
       src.write(markup)
   print("images marked as decorative")
+
+def nbsp():
+    remediate({'(&nbsp;\\s?)+' : '&nbsp;'}, "removed repetitive nbsp")
+
+def empty(elem):
+  remediate({'<' + elem + '>((&nbsp;)+)?</' + elem + '>' : ''}, "removed empty " + elem + " elements")
+  format()
+
+def h3br():
+  remediate({'<h3>' : '<h3><br>'}, "added <br> to each <h3>")
+
+def basic():
+  tags()
+  headings()
+  nbsp()
+  h3br()
+  empty("p")
