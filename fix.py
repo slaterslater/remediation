@@ -130,6 +130,10 @@ def iframes():
     file.write(markup)
     print("iframes recreated")
 
+# remove HTML comments
+def comments():
+  remediate({'<!--[^>]*>':''}, "removed HTML comments")
+
 # calls common
 def basic():
   tags()
