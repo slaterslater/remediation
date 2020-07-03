@@ -45,10 +45,14 @@ def format():
   fixes = {
     '\n\\s+|(\n){2,}': '\n',
     '\n(?=\\w)': '',
-    #'<br(\\s/)?>': '<br>', #remove this?
-    '\n(\\s+)?(?=&nbsp;)': ''
+    '(<br />\n){2,}': '',
+    '\n(\\s+)?(?=&nbsp;)': '',
+    '\n(&nbsp)+' : '',
+    '&gt;\\s?(?=</)' : '',
+    '(?<=&nbsp;)\n' : '',
+    '(?<=\\w)\n' : ''
   }
-  remediate(fixes, "removed blank lines etc")
+  remediate(fixes, "removed blank lines and extraneous breaks")
 
 # removes empty headings
 def headings():
@@ -99,6 +103,33 @@ def rmtables():
   }
   remediate(table, "removed table elements")
 
+# removes empty table rows
+def emptyrows():
+  remediate({'<tr>(\n<td[^>]+>&nbsp;</td>)+\n</tr>\n' : ''}, "removed empty table rows")
+
+# replaces <x> with <y>
+def swap(x, y):
+  remediate({'(?<=(<|/))' + x : y}, "replaced <" + x + "> with <" + y + ">")
+
+def useless(elem):
+  remediate({'</?' + elem + '[^>]*>':''}, "removed unecessary <" + elem + ">")
+
+# creates new iframe with inline CSS
+def iframes():
+  with open(filename, "r+") as file:
+    markup = file.read()
+    iframes = re.findall('<iframe[^>]*>', markup)
+    for iframe in iframes:
+      height = re.findall('(?<=height=")\\d+', iframe)
+      width = re.findall('(?<=width=")\\d+', iframe)
+      src = re.findall('src="[^"]+"', iframe)
+      new = '<iframe ' + src[0] + ' style="height: ' + height[0] + 'px; width: ' + width[0] + 'px;">'
+      markup = markup.replace(iframe, new)
+    file.seek(0)
+    file.truncate(0)
+    file.write(markup)
+    print("iframes recreated")
+
 # calls common
 def basic():
   tags()
@@ -106,6 +137,7 @@ def basic():
   nbsp()
   h3br()
   empty("p")
+  empty("div")
   format()
 
 # function should findall and if exists, msgs and writes otherwise exits  
