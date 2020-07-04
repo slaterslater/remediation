@@ -28,10 +28,10 @@ def remediate(fixlist, msg):
 # updates tags
 def tags():
   fix = {
-    '</?u>': '',
-    '<b>': '<strong>',
+    '</?u(>|\\s[^>]*>)': '',
+    '<b(>|\\s[^>]*>)': '<strong>',
     '</b>': '</strong>',
-    '<i>': '<em>',
+    '<i(>|\\s[^>]*>)': '<em>',
     '</i>': '</em>'
   }
   remediate(fix, "<u> <b> <i> tags fixed")
@@ -50,7 +50,8 @@ def format():
     '\n(&nbsp)+' : '',
     '&gt;\\s?(?=</)' : '',
     '(?<=&nbsp;)\n' : '',
-    '(?<=\\w)\n' : ''
+    '(?<=\\w)\n' : '',
+    '^(\n)+' : ''
   }
   remediate(fixes, "removed blank lines and extraneous breaks")
 
@@ -93,19 +94,23 @@ def br():
     remediate({'<br(\\s/)?>' : ''}, "removed all <br> elements")
 
 # remove all attributes from table tag
-def tables():
+def tabletag():
   remediate({'<table[^>]*>' : '<table>'}, "cleared table attributes")
+
+def tables():
+  tabletag()
+  emptyrows()
 
 # remove all table elements
 def rmtables():
   table = {
-    '</?(table|thead|tbody|tfoot|tr|th|td)[^>]*>' : ''
+    '</?(table|caption|thead|tbody|tfoot|tr|th|td)[^>]*>' : ''
   }
   remediate(table, "removed table elements")
 
 # removes empty table rows
 def emptyrows():
-  remediate({'<tr>(\n<td[^>]+>&nbsp;</td>)+\n</tr>\n' : ''}, "removed empty table rows")
+  remediate({'<tr>\n(<td>&nbsp;</td>\n)+</tr>\n' : ''}, "removed empty table rows")
 
 # replaces <x> with <y>
 def swap(x, y):
@@ -135,7 +140,7 @@ def comments():
   remediate({'<!--[^>]*>':''}, "removed HTML comments")
 
 # calls common
-def basic():
+def main():
   tags()
   headings()
   nbsp()
